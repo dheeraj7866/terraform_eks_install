@@ -76,3 +76,33 @@ resource "aws_iam_role_policy_attachment" "ec2_container_registry_policy" {
   role       = aws_iam_role.node_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
+
+# Attach Autoscaler-specific permissions
+resource "aws_iam_policy" "cluster_autoscaler_policy" {
+  name        = "${var.cluster_name}-cluster-autoscaler-policy"
+  description = "Policy for Cluster Autoscaler to manage Auto Scaling Groups"
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "autoscaling:DescribeAutoScalingGroups",
+          "autoscaling:SetDesiredCapacity",
+          "autoscaling:TerminateInstanceInAutoScalingGroup",
+          "autoscaling:DescribeTags",
+          "autoscaling:UpdateAutoScalingGroup",
+          "ec2:DescribeLaunchTemplateVersions"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# Attach the Cluster Autoscaler policy to the node role
+resource "aws_iam_role_policy_attachment" "cluster_autoscaler_policy_attachment" {
+  role       = aws_iam_role.node_role.name
+  policy_arn = aws_iam_policy.cluster_autoscaler_policy.arn
+}

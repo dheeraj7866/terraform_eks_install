@@ -58,6 +58,6 @@ variable "node_group_config" {
     desired_capacity = 2
     max_capacity     = 5
     min_capacity     = 1
-    instance_types   = ["t3.medium"]
+    instance_types   = ["t2.medium"]
   }
 }
